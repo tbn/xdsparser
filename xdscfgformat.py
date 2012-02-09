@@ -15,14 +15,15 @@ class List(object):
             if len(chunks) != self.numargs:
                 raise ValueError, "not the right number of args"
 
-        return [transform(elem) for elem in chunks]
+        return [self.transform(elem) for elem in chunks]
 
 class Image(object):
     # XXX check for allowed image formats
     # format is:
     # filepath optional_format
-    KNOWN_FORMATS = []
     def __call__(self, chunks):
+        KNOWN_FORMATS = []
+
         if len(chunks) > 3 or len(chunks) < 1:
             raise ValueError, "wrong file spec: %s" % chunk
         if len(chunks) == 2:
@@ -169,7 +170,7 @@ CONFIGURATION_PARSERS = {
     'X-RAY_WAVELENGTH=': Value(float),
     'INCIDENT_BEAM_DIRECTION=': List(3, transform=float),
     'FRACTION_OF_POLARIZATION=': Value(float),
-    'POLARIZATION_PLANE_NORMAL=': Value(float),
+    'POLARIZATION_PLANE_NORMAL=': List(3, float),
     'AIR=': Value(float),
     #Crystal:
     'SPACE_GROUP_NUMBER=': Value(int),
