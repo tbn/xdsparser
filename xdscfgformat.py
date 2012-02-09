@@ -54,10 +54,10 @@ class Enumeration(object):
 
 class Jobs(object):
     # XDS jobs
-    JOBS = [ "ALL", "XYCORR", "INIT",
-             "COLSPOT", "IDXREF", "DEFPIX",
-             "XPLAN", "INTEGRATE", "CORRECT"]
     def __init__(self):
+        JOBS = [ "ALL", "XYCORR", "INIT",
+                 "COLSPOT", "IDXREF", "DEFPIX",
+                 "XPLAN", "INTEGRATE", "CORRECT"]
         Enumeration.__init__(self, JOBS, default='ALL')
 
 class Value(object):
@@ -78,18 +78,15 @@ class BoundedList(object):
         return [transform(elem) for elem in chunks]
 
 class RefineJobs(Enumeration):
-    JOBS =[ 'ALL',
-            'DISTANCE',
-            'BEAM',
-            'AXIS',
-            'ORIENTATION',
-            'CELL']
     def __init__(self):
+        JOBS =[ 'ALL', 'DISTANCE', 'BEAM',
+                'AXIS', 'ORIENTATION', 'CELL']
+
         Enumeration.__init__(self, JOBS, default='ALL')
 
 class Corrections(Enumeration):
-    JOBS = [ 'ALL',  'DECAY',  'MODULATION',  'ABSORPTION' ]
     def __init__(self):
+        JOBS = [ 'ALL',  'DECAY',  'MODULATION',  'ABSORPTION' ]
         Enumeration.__init__(self, JOBS, default='ALL')
 
 
