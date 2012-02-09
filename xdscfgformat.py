@@ -69,7 +69,7 @@ class Value(object):
         return self.transform(chunks[0])
 
 class BoundedList(object):
-    def __init__(self, maxsize, tansform=lambda x:x):
+    def __init__(self, maxsize, transform=lambda x:x):
         self.maxsize= maxsize
         self.transform = transform
     def __call__(self, chunks):
@@ -88,6 +88,23 @@ class Corrections(Enumeration):
     def __init__(self):
         JOBS = [ 'ALL',  'DECAY',  'MODULATION',  'ABSORPTION' ]
         Enumeration.__init__(self, JOBS, default='ALL')
+
+class Boolean(object):
+    def __init__(self, default=None):
+        self.default = default
+    def __call__(self, chunks):
+        if len(chunks) == 0:
+            if self.default is not None:
+                return self.default
+            else:
+                raise ValueError, 'empty param and no default value'
+        param = chunks[0] # yep, we ignore trailing params
+        if param == 'TRUE':
+            return True
+        elif param == 'FALSE':
+            return False
+        else:
+            raise ValueError, 'Strange value for boolean: %s' % param
 
 
 # dispatch table, format is
@@ -167,7 +184,7 @@ CONFIGURATION_PARSERS = {
     'STARTING_ANGLES_OF_SPINDLE_ROTATION=': List(3, transform=float),
     'TOTAL_SPINDLE_ROTATION_RANGES=': List(3, transform=float),
     'RESOLUTION_SHELLS=': BoundedList(13, transform=float),
-    'REFERENCE_DATA_SET=': Value(string), # a filename in fact
+    'REFERENCE_DATA_SET=': Value(str), # a filename in fact
     'MAX_CELL_AXIS_ERROR=': Value(float),
     'MAX_CELL_ANGLE_ERROR=': Value(float),
     'TEST_RESOLUTION_RANGE=': List(2, float),
