@@ -1,6 +1,98 @@
 #some kw can be specified multiple times (values are accumulated in a
 #list I guess). Those are: EXCLUDE_RESOLUTION_RANGE, SPOT_RANGE
 
+# parsers
+
+class List(object):
+    # check length
+    # apply the transform on items
+    # default transform -> id
+    def __init__(self, numargs, transform=lambda x: x):
+        self.transform = transform
+        self.numargs = numargs
+    def __call__(self, chunks):
+        if self.numargs is not None:
+            if len(chunks) != self.numargs:
+                raise ValueError, "not the right number of args"
+
+        return [transform(elem) for elem in chunks]
+
+class Image(object):
+    # XXX check for allowed image formats
+    # format is:
+    # filepath optional_format
+    KNOWN_FORMATS = []
+    def __call__(self, chunks):
+        if len(chunks) > 3 or len(chunks) < 1:
+            raise ValueError, "wrong file spec: %s" % chunk
+        if len(chunks) == 2:
+            #2nd val is the format, check it
+            if chunks[1] not in KNOWN_FORMATS:
+                # log stuff?
+                pass
+        #XXX look into the 3 args version where the access is defined
+        #in addition to the file path
+        return chunks
+
+
+class Enumeration(object):
+    # check if the transformed value is an allowed value
+    # default is used if no parameters to parse
+    def __init__(self, possible_values, transform=lambda x: x, default=None):
+        self.possible_values = possible_values
+        self.transform = transform
+    def __call__(self, chunks):
+        if len(chunks == 0):
+            if default is not None:
+                return default
+        if len(chunks) != 1:
+            raise ValueError, "More than one value for enumeration"
+        val = self.transform(chunks[0])
+        if val not in self.possible_values:
+            raise ValueError, "val %s not in %s" % (val, self.possible_values)
+        return val
+
+class Jobs(object):
+    # XDS jobs
+    JOBS = [ "ALL", "XYCORR", "INIT",
+             "COLSPOT", "IDXREF", "DEFPIX",
+             "XPLAN", "INTEGRATE", "CORRECT"]
+    def __init__(self):
+        Enumeration.__init__(self, JOBS, default='ALL')
+
+class Value(object):
+    def __init__(self, transform=lambda x: x):
+        self.transform = transform
+    def __call__(self, chunks):
+        if len(chunks) != 1:
+            raise ValueError, 'more than one value to parse'
+        return self.transform(chunks[0])
+
+class BoundedList(object):
+    def __init__(self, maxsize, tansform=lambda x:x):
+        self.maxsize= maxsize
+        self.transform = transform
+    def __call__(self, chunks):
+        if not (0 < len(chunks) < self.maxsize):
+            raise ValueError, "too many or too few args: %s" % chunks
+        return [transform(elem) for elem in chunks]
+
+class RefineJobs(Enumeration):
+    JOBS =[ 'ALL',
+            'DISTANCE',
+            'BEAM',
+            'AXIS',
+            'ORIENTATION',
+            'CELL']
+    def __init__(self):
+        Enumeration.__init__(self, JOBS, default='ALL')
+
+class Corrections(Enumeration):
+    JOBS = [ 'ALL',  'DECAY',  'MODULATION',  'ABSORPTION' ]
+    def __init__(self):
+        Enumeration.__init__(self, JOBS, default='ALL')
+
+
 # dispatch table, format is
 # keyword: transform
 # transform will be passed the raw param as is (after comments are removed)
@@ -130,92 +222,3 @@ CONFIGURATION_PARSERS = {
     'REJECT_ALIEN=': Value(float),
     'FIXED_SCALE_FACTOR=': Boolean()
 }
-
-class List(object):
-    # check length
-    # apply the transform on items
-    # default transform -> id
-    def __init__(self, numargs, transform=lambda x: x):
-        self.transform = transform
-        self.numargs = numargs
-    def __call__(self, chunks):
-        if self.numargs is not None:
-            if len(chunks) != self.numargs:
-                raise ValueError, "not the right number of args"
-
-        return [transform(elem) for elem in chunks]
-
-class Image(object):
-    # XXX check for allowed image formats
-    # format is:
-    # filepath optional_format
-    KNOWN_FORMATS = []
-    def __call__(self, chunks):
-        if len(chunks) > 3 or len(chunks) < 1:
-            raise ValueError, "wrong file spec: %s" % chunk
-        if len(chunks) == 2:
-            #2nd val is the format, check it
-            if chunks[1] not in KNOWN_FORMATS:
-                # log stuff?
-                pass
-        #XXX look into the 3 args version where the access is defined
-        #in addition to the file path
-        return chunks
-
-
-class Enumeration(object):
-    # check if the transformed value is an allowed value
-    # default is used if no parameters to parse
-    def __init__(self, possible_values, transform=lambda x: x, default=None):
-        self.possible_values = possible_values
-        self.transform = transform
-    def __call__(self, chunks):
-        if len(chunks == 0):
-            if default is not None:
-                return default
-        if len(chunks) != 1:
-            raise ValueError, "More than one value for enumeration"
-        val = self.transform(chunks[0])
-        if val not in self.possible_values:
-            raise ValueError, "val %s not in %s" % (val, self.possible_values)
-        return val
-
-class Jobs(object):
-    # XDS jobs
-    JOBS = [ "ALL", "XYCORR", "INIT",
-             "COLSPOT", "IDXREF", "DEFPIX",
-             "XPLAN", "INTEGRATE", "CORRECT"]
-    def __init__(self):
-        Enumeration.__init__(self, JOBS, default='ALL')
-
-class Value(object):
-    def __init__(self, transform=lambda x: x):
-        self.transform = transform
-    def __call__(self, chunks):
-        if len(chunks) != 1:
-            raise ValueError, 'more than one value to parse'
-        return self.transform(chunks[0])
-
-class BoundedList(object):
-    def __init__(self, maxsize, tansform=lambda x:x):
-        self.maxsize= maxsize
-        self.transform = transform
-    def __call__(self, chunks):
-        if not (0 < len(chunks) < self.maxsize):
-            raise ValueError, "too many or too few args: %s" % chunks
-        return [transform(elem) for elem in chunks]
-
-class RefineJobs(Enumeration):
-    JOBS =[ 'ALL',
-            'DISTANCE',
-            'BEAM',
-            'AXIS',
-            'ORIENTATION',
-            'CELL']
-    def __init__(self):
-        Enumeration.__init__(self, JOBS, default='ALL')
-
-class Corrections(Enumeration):
-    JOBS = [ 'ALL',  'DECAY',  'MODULATION',  'ABSORPTION' ]
-    def __init__(self):
-        Enumeration.__init__(self, JOBS, default='ALL')
