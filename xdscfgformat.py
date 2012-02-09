@@ -119,7 +119,7 @@ CONFIGURATION_PARSERS = {
     'SECONDS=': Value(int),
     'TEST=': Value(int), # in [0, 2]
     #Detector hardware:
-    'DETECTOR=': List(1), # also restricted list
+    'DETECTOR=': Value(str), # also restricted list
     'NX=': Value(int),
     'NY=': Value(int),
     'QX=': Value(float),

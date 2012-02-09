@@ -25,7 +25,6 @@ def _load_xds_file(path):
                 tokens.append(t)
             #kw=firstarg case, split them
             else:
-                print 'special case:', t
                 # keep the = sign a the end of the kw
                 tokens.append(t[:idx+1])
                 tokens.append(t[idx+1:])
@@ -59,7 +58,7 @@ def parse_xds_file(path):
             continue
         parser = CONFIGURATION_PARSERS[kw]
 
-        print 'parsing', args, 'with', parser, 'for kw', kw
+        #print 'parsing', args, 'with', parser, 'for kw', kw
 
         # XXX maybe catch exc and log them
         parsedargs = parser(args)
