@@ -12,7 +12,23 @@ def _load_xds_file(path):
 
     for line in cleanedup:
         kwds = []
-        tokens = line.split()
+
+        # since there can be no space between the kw and its first arg
+        # we'll make 2 passes to split on whitespace and then resplit
+        # kw and 1st arg in this case
+        partial_tokens = line.split()
+        tokens = list()
+        for t in partial_tokens:
+            idx = t.find('=')
+            # not a kw or already isolated kw
+            if idx == -1 or idx == len(t)-1:
+                tokens.append(t)
+            #kw=firstarg case, split them
+            else:
+                print 'special case:', t
+                # keep the = sign a the end of the kw
+                tokens.append(t[:idx+1])
+                tokens.append(t[idx+1:])
 
         # look for keywords
         for token, idx in zip(tokens, range(len(tokens)+1)):
@@ -42,6 +58,8 @@ def parse_xds_file(path):
             # XXX maybe log it
             continue
         parser = CONFIGURATION_PARSERS[kw]
+
+        print 'parsing', args, 'with', parser, 'for kw', kw
 
         # XXX maybe catch exc and log them
         parsedargs = parser(args)
