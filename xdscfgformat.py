@@ -52,7 +52,7 @@ class Enumeration(object):
             raise ValueError, "val %s not in %s" % (val, self.possible_values)
         return val
 
-class Jobs(object):
+class Jobs(Enumeration):
     # XDS jobs
     def __init__(self):
         JOBS = [ "ALL", "XYCORR", "INIT",
@@ -143,8 +143,8 @@ CONFIGURATION_PARSERS = {
     'ORGX=': Value(float),
     'ORGY=': Value(float),
     'DETECTOR_DISTANCE=': Value(float),
-    'DIRECTION_OF_DETECTOR_X-AXIS=': EdMatrix(),
-    'DIRECTION_OF_DETECTOR_Y-AXIS=': EdMatrix(),
+    'DIRECTION_OF_DETECTOR_X-AXIS=': List(3, transform=float),
+    'DIRECTION_OF_DETECTOR_Y-AXIS=': List(3, transform=float),
     #Rotation axis:
     'ROTATION_AXIS=': List(3, transform=float),
     'OSCILLATION_RANGE=': Value(float),
