@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from types import ListType, TupleType
 from xdscfgformat import CONFIGURATION_PARSERS
 
 # Load a XDS file, remove the comments, and then split it into a list
@@ -82,3 +83,17 @@ def _uncomment(lines):
             if len(stripped) > 0:
                 res.append(stripped)
     return res
+
+def dump_xds_file(filename, xdsconf):
+    with open(filename, 'w') as outfile:
+        for key in xdsconf:
+            outfile.write(key)
+            value = xdsconf[key]
+            if type(value) in [ListType, TupleType]:
+                for item in value:
+                    outfile.write(' ')
+                    outfile.write(str(item))
+            else: #single val
+                outfile.write(' ')
+                outfile.write(str(value))
+            outfile.write('\n')
