@@ -107,6 +107,32 @@ class Boolean(object):
         else:
             raise ValueError, 'Strange value for boolean: %s' % param
 
+class Dataset(object):
+    def __init__(self):
+        pass
+    def __call__(self, chunks):
+        VALID_FORMATS = [ 'XDS_ASCII', 'DIRECT', 'ANOMAL',
+                          'NORMAL', 'OLDHKL', 'UNIQUE']
+        if len(chunks) == 1:
+            return chunks
+        if len(chunks) == 2:
+            if chunks[1] not in VALID_FORMATS:
+                raise ValueError, 'Invalid format %s' % chunks[1]
+            return chunks
+        raise ValueError, 'too few or many params: %s' % chunks
+
+# return the float value and wether it is fixed or not in a list
+class FittableDose(object):
+    def __init__(self):
+        pass
+    def __call__(self, chunks):
+        if len(chunks) != 1:
+            raise ValueError, "wrong number of params: %s" % chunks
+        val = chunks[0]
+        if val.endswith('*'):
+            return [float(val[:-1]), True]
+        else:
+            return [float(val), False]
 
 # dispatch table, format is
 # keyword: transform
