@@ -42,16 +42,16 @@ class Enumeration(object):
     def __init__(self, possible_values, transform=lambda x: x, default=None):
         self.possible_values = possible_values
         self.transform = transform
+        self.default = default
     def __call__(self, chunks):
-        if len(chunks == 0):
-            if default is not None:
-                return default
-        if len(chunks) != 1:
-            raise ValueError, "More than one value for enumeration"
-        val = self.transform(chunks[0])
-        if val not in self.possible_values:
-            raise ValueError, "val %s not in %s" % (val, self.possible_values)
-        return val
+        if len(chunks) == 0:
+            if self.default is not None:
+                return self.default
+        vals = [self.transform(elem) for elem in chunks]
+        for val in vals:
+            if val not in self.possible_values:
+                raise ValueError, "val %s not in %s" % (val, self.possible_values)
+        return vals
 
 class Jobs(Enumeration):
     # XDS jobs
