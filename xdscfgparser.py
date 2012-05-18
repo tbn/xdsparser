@@ -1,6 +1,8 @@
 from __future__ import with_statement
 from types import ListType, TupleType
+import logging
 from xdscfgformat import CONFIGURATION_PARSERS
+from xdscfgformat import REPEATABLE_PARAMS
 
 # Load a XDS file, remove the comments, and then split it into a list
 # of (keyword, [args]) tuples
@@ -63,7 +65,18 @@ def parse_xds_file(path):
 
         # XXX maybe catch exc and log them
         parsedargs = parser(args)
-        parsed[kw] = parsedargs
+
+        # special case, for repeatable params, we add them as a list
+        # or append them if they already exist
+        if kw in REPEATABLE_PARAMS:
+            print 'keyword', kw, 'is repeatable'
+            if kw in parsed:
+                parsed[kw].append(parsedargs)
+            else:
+                parsed[kw] = [parsedargs]
+        else:
+            # regular case just assign the thing
+            parsed[kw] = parsedargs
 
     return parsed
 
