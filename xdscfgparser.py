@@ -100,13 +100,24 @@ def _uncomment(lines):
 def dump_xds_file(filename, xdsconf):
     with open(filename, 'w') as outfile:
         for key in xdsconf:
-            outfile.write(key)
             value = xdsconf[key]
-            if type(value) in [ListType, TupleType]:
-                for item in value:
-                    outfile.write(' ')
-                    outfile.write(str(item))
-            else: #single val
-                outfile.write(' ')
-                outfile.write(str(value))
-            outfile.write('\n')
+            # repeatable keywords have a list associated, we have to
+            # repeat the kw along with the values
+            if key in REPEATABLE_PARAMS:
+                for val in value:
+                    outfile.write(_format_param(key, val))
+            else:
+                outfile.write(_format_param(key, value))
+
+def _format_param(key, value):
+    """return a string in the form
+key= value value value
+taking into account whether value is a list of things or a single
+value"""
+    if type(value) in [ListType, TupleType]:
+        valstring = ' '.join(map(str, value))
+        res = '{0} {1}\n'.format(key, valstring)
+    else: #single val
+        res = '{0} {1}\n'.format(key, value)
+
+    return res
