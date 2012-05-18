@@ -82,6 +82,12 @@
  BACKGROUND_RANGE=1 6  !Numbers of first and last data image for background
 
 !SPOT_RANGE=1 60       !First and last data image number for finding spots
+! for testing purposes, repeatable parameter
+SPOT_RANGE= 1 10
+SPOT_RANGE= 21 32
+SPOT_RANGE= 45 60
+SPOT_RANGE= 70 70
+
 
 !==================== DATA COLLECTION STRATEGY (XPLAN) ======================
 !                       !!! Warning !!!
